@@ -1,0 +1,11 @@
+1.0.0 - "Basic Beast"
+=====================
+
+New features:
+
+* Based on RAII
+* Configurable level symbols
+* Date / time
+* Logging levels: Trace, Debug, Info, Warning, Error, Fatal
+* Log to file and/or console
+
