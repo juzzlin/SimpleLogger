@@ -24,7 +24,7 @@
 
 #define _CRT_SECURE_NO_WARNINGS
 
-#include "logger.hpp"
+#include "simple_logger.hpp"
 
 #include <ctime>
 #include <fstream>

@@ -14,9 +14,11 @@ Looking for a simple logger for your C++ project? `SimpleLogger` might be for yo
 
 # Installation
 
-Just add `src/logger.hpp` and `src/logger.cpp` to your project and start using it!
+Just add `src/simple_logger.hpp` and `src/simple_logger.cpp` to your project and start using it!
 
 # Examples
+
+Note: instead of `Logger` class you can simply use `L`.
 
 ## Log to console
 
