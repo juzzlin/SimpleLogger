@@ -1,14 +1,14 @@
 SimpleLogger
 ============
 
-Looking for a simple logger for C++ ? SimpleLogger might be for you.
+Looking for a simple logger for your C++ project? `SimpleLogger` might be for you.
 
 # Features
 
 * Based on RAII
 * Configurable level symbols
 * Date / time
-* Logging levels: Trace, Debug, Info, Warning, Error, Fatal
+* Logging levels: `Trace`, `Debug`, `Info`, `Warning`, `Error`, `Fatal`
 * Log to file and/or console
 * Very easy to use
 
