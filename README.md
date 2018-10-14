@@ -100,10 +100,14 @@ Outputs something like this:
 
 `[Sat Oct 13 22:38:42 2018] <DEBUG> A debug thing happened`
 
-## Requirements
+# Requirements
 
 C++11
 
-## Licence
+# Licence
 
 MIT
+
+# Projects currently using SimpleLogger
+
+* https://github.com/juzzlin/Heimer
