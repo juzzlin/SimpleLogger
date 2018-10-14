@@ -15,7 +15,21 @@ Looking for a simple logger for your C++ project? `SimpleLogger` might be for yo
 
 # Installation
 
+## Use from sources
+
 Just add `src/simple_logger.hpp` and `src/simple_logger.cpp` to your project and start using it!
+
+## Use as a library
+
+Add the CMake project as a subproject or build and install:
+
+`$ mkdir build && cd build`
+
+`$ cmake ..`
+
+`$ make`
+
+`$ sudo make install`
 
 # Examples
 
