@@ -10,6 +10,7 @@ Looking for a simple logger for your C++ project? `SimpleLogger` might be for yo
 * Date / time
 * Logging levels: `Trace`, `Debug`, `Info`, `Warning`, `Error`, `Fatal`
 * Log to file and/or console
+* Uses streams (<< operator)
 * Very easy to use
 
 # Installation
