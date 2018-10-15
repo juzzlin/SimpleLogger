@@ -32,8 +32,6 @@
 
 #ifdef Q_OS_ANDROID
 #include <QDebug>
-#else
-#include <cstdio>
 #endif
 
 namespace juzzlin {
