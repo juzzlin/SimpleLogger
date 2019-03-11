@@ -24,3 +24,4 @@ install(TARGETS ${LIBRARY_NAME}
     PUBLIC_HEADER DESTINATION include
 )
 
+add_subdirectory(tests)
