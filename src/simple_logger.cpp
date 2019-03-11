@@ -28,6 +28,7 @@
 #include <fstream>
 #include <iostream>
 #include <map>
+#include <mutex>
 #include <stdexcept>
 
 #ifdef Q_OS_ANDROID
@@ -88,6 +89,8 @@ private:
     using StreamMap = std::map<Logger::Level, std::ostream *>;
     static StreamMap m_streams;
 
+    static std::mutex m_mutex;
+
     Logger::Level m_activeLevel = Logger::Level::Info;
 
     std::ostringstream m_oss;
@@ -121,13 +124,18 @@ Logger::Impl::StreamMap Logger::Impl::m_streams = {
     {Logger::Level::Fatal,   &std::cerr}
 };
 
+std::mutex Logger::Impl::m_mutex;
+
 Logger::Impl::Impl()
 {
+    Logger::Impl::m_mutex.lock();
 }
 
 Logger::Impl::~Impl()
 {
     flush();
+
+    Logger::Impl::m_mutex.unlock();
 }
 
 void Logger::Impl::enableEchoMode(bool enable)
