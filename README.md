@@ -7,7 +7,7 @@ Looking for a simple logger for your C++ project? `SimpleLogger` might be for yo
 
 * Based on RAII
 * Configurable level symbols
-* Date / time
+* Datetime / EPOCH timestamps
 * Logging levels: `Trace`, `Debug`, `Info`, `Warning`, `Error`, `Fatal`
 * Log to file and/or console
 * Thread-safe
@@ -46,7 +46,7 @@ L().info() << "Something happened";
 
 Outputs something like this:
 
-`[Sat Oct 13 22:38:42 2018] I: Something happened`
+`Sat Oct 13 22:38:42 2018 I: Something happened`
 
 ## Log to file and console
 
@@ -69,7 +69,7 @@ L::enableEchoMode(false);
 L().info() << "Something happened";
 ```
 
-## Set logging level 
+## Set logging level
 
 ```
 using juzzlin::L;
@@ -82,9 +82,9 @@ L().debug() << "A debug thing happened";
 
 Outputs something like this:
 
-`[Sat Oct 13 22:38:42 2018] I: Something happened`
+`Sat Oct 13 22:38:42 2018 I: Something happened`
 
-`[Sat Oct 13 22:38:42 2018] D: A debug thing happened`
+`Sat Oct 13 22:38:42 2018 D: A debug thing happened`
 
 ## Set custom level symbols
 
@@ -99,7 +99,23 @@ L().debug() << "A debug thing happened";
 
 Outputs something like this:
 
-`[Sat Oct 13 22:38:42 2018] <DEBUG> A debug thing happened`
+`Sat Oct 13 22:38:42 2018 <DEBUG> A debug thing happened`
+
+## Set timestamp mode and optional custom separator
+
+Possible modes: `None`, `EpochSeconds`, `EpochMilliseconds`, `EpochMicroseconds`, `DateTime`.
+
+```
+using juzzlin::L;
+
+L::setTimestampMode(L::TimestampMode::EpochMilliseconds, " ## ");
+
+L().info() << "Something happened";
+```
+
+Outputs something like this:
+
+`1562955750677 ## I: Something happened`
 
 # Requirements
 

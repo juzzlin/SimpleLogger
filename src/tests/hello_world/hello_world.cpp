@@ -41,10 +41,11 @@ int main(int, char **)
 
     L::init(logFile);
     L::enableEchoMode(true);
-    L::enableDateTime(true);
     L::setLoggingLevel(L::Level::Trace);
 
-    std::string message = "Hello, world!";
+    const std::string message = "Hello, world!";
+    const std::string timestampSeparator = " ## ";
+    L::setTimestampMode(L::TimestampMode::DateTime, timestampSeparator);
 
     L().trace() << message;
     L().debug() << message;
@@ -61,6 +62,7 @@ int main(int, char **)
     while (std::getline(fin, line))
     {
         assert(line.find(message) != std::string::npos);
+        assert(line.find(timestampSeparator) != std::string::npos);
         lines++;
     }
 
