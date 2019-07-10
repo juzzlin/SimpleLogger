@@ -111,4 +111,7 @@ MIT
 
 # Projects currently using SimpleLogger
 
+* https://github.com/juzzlin/DustRacing2D
+
 * https://github.com/juzzlin/Heimer
+
