@@ -24,6 +24,7 @@
 
 #include "simple_logger.hpp"
 
+#include <chrono>
 #include <ctime>
 #include <fstream>
 #include <iostream>
