@@ -287,6 +287,11 @@ Logger::Logger()
 {
 }
 
+void Logger::init(std::string filename, Append append)
+{
+    Logger::init(filename, static_cast<bool>(append));
+}
+
 void Logger::init(std::string filename, bool append)
 {
     Impl::init(filename, append);
