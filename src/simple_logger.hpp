@@ -84,7 +84,7 @@ public:
      *  Throws on error. */
     static void init(std::string filename, bool append = false);
 
-    /*! Initialize the logger.
+    /*! Initialize the logger using an enum type for append mode.
      *  \param filename Log to filename. Disabled if empty.
      *  \param append The existing log will be appended if Append.
      *  Throws on error. */
