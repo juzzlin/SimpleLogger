@@ -4,7 +4,7 @@ pipeline {
         stage('CMake Debug build') {
             agent {
                 docker {
-                    image 'juzzlin/qt5:18.04'
+                    image 'juzzlin/qt5-18.04:latest'
                     args '--privileged -t -v $WORKSPACE:/SimpleLogger'
                 }
             }
@@ -17,7 +17,7 @@ pipeline {
         stage('CMake Release build') {
             agent {
                 docker {
-                    image 'juzzlin/qt5:18.04'
+                    image 'juzzlin/qt5-18.04:latest'
                     args '--privileged -t -v $WORKSPACE:/SimpleLogger'
                 }
             }
