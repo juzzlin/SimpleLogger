@@ -66,6 +66,8 @@ public:
 
     static void setTimestampMode(Logger::TimestampMode timestampMode, std::string separator);
 
+    static void setStream(Level level, std::ostream & stream);
+
     static void init(std::string filename, bool append);
 
     void flush();
@@ -282,6 +284,11 @@ std::ostringstream & Logger::Impl::fatal()
     return getStream(Logger::Level::Fatal);
 }
 
+void Logger::Impl::setStream(Level level, std::ostream & stream)
+{
+    Logger::Impl::m_streams[level] = &stream;
+}
+
 Logger::Logger()
     : m_impl(new Logger::Impl)
 {
@@ -310,6 +317,11 @@ void Logger::setLevelSymbol(Level level, std::string symbol)
 void Logger::setTimestampMode(TimestampMode timestampMode, std::string separator)
 {
     Impl::setTimestampMode(timestampMode, separator);
+}
+
+void Logger::setStream(Level level, std::ostream & stream)
+{
+    Impl::setStream(level, stream);
 }
 
 std::ostringstream & Logger::trace()

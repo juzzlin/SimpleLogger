@@ -126,6 +126,15 @@ Outputs something like this:
 
 `1562955750677 ## I: Something happened`
 
+## Set custom output stream
+
+```
+using juzzlin::L;
+
+std::stringstream ssI;
+L::setStream(L::Level::Info, ssI);
+```
+
 # Requirements
 
 C++11
