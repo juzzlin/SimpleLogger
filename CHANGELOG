@@ -4,6 +4,7 @@ x.y.z
 New features:
 
 * Fix GitHub Issue #1: Make the streams configurable
+* Add getter for version
 
 Other:
 

@@ -354,6 +354,15 @@ std::ostringstream & Logger::fatal()
     return m_impl->fatal();
 }
 
+std::string Logger::version()
+{
+#ifndef SIMPLELOGGER_VERSION
+    return "?.?.?";
+#else
+    return SIMPLELOGGER_VERSION;
+#endif
+}
+
 Logger::~Logger() = default;
 
 } // juzzlin

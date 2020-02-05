@@ -101,6 +101,9 @@ public:
     //! \param stream The output stream.
     static void setStream(Level level, std::ostream & stream);
 
+    //! \return Library version in x.y.z
+    static std::string version();
+
     //! Get stream to the trace log message.
     std::ostringstream & trace();
 
@@ -120,7 +123,6 @@ public:
     std::ostringstream & fatal();
 
 private:
-
     Logger(const Logger & r) = delete;
     Logger & operator=(const Logger & r) = delete;
 
