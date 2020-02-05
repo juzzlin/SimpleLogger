@@ -23,6 +23,7 @@ set(CMAKE_CXX_STANDARD 11)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR MINGW OR ${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility-inlines-hidden")
 
     # CMAKE_CXX_STANDARD supported only by versions >= 3.1
     if (CMAKE_VERSION VERSION_LESS "3.1")
