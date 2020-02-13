@@ -20,7 +20,7 @@ Looking for a simple logger for your C++ project? `SimpleLogger` might be for yo
 
 Just add `src/simple_logger.hpp` and `src/simple_logger.cpp` to your project and start using it!
 
-## Use as a CMake subproject
+## Use as a CMake subproject (Recommended)
 
 Copy contents of `SimpleLogger` under your main project (or clone as a Git submodule).
 
@@ -29,6 +29,18 @@ In your `CMakeLists.txt`:
 ```
 add_subdirectory(SimpleLogger)
 include_directories(SimpleLogger/src)
+```
+
+Link to the library:
+
+```
+target_link_libraries(${YOUR_TARGET_NAME} SimpleLogger)
+```
+
+In your code:
+
+```
+#include "simple_logger.hpp"
 ```
 
 ## Use as a library
