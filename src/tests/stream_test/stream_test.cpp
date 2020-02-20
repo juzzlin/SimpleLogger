@@ -55,7 +55,7 @@ int main(int, char **)
     const std::string timestampSeparator = " ## ";
     L::setTimestampMode(L::TimestampMode::DateTime, timestampSeparator);
 
-    assert(L::version() == SIMPLELOGGER_VERSION);
+    assert(L::version() == SIMPLE_LOGGER_VERSION);
 
     L::setLoggingLevel(L::Level::None);
     std::stringstream ssF;

@@ -356,10 +356,10 @@ std::ostringstream & Logger::fatal()
 
 std::string Logger::version()
 {
-#ifndef SIMPLELOGGER_VERSION
+#ifndef SIMPLE_LOGGER_VERSION
     return "?.?.?";
 #else
-    return SIMPLELOGGER_VERSION;
+    return SIMPLE_LOGGER_VERSION;
 #endif
 }
 
