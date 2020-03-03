@@ -3,7 +3,7 @@ project(SimpleLogger)
 cmake_minimum_required(VERSION 2.8.12)
 cmake_policy(VERSION 2.8.12)
 
-enable_testing()
+option(BUILD_TESTS "Build unit tests" ON)
 
 # Default to release C++ flags if CMAKE_BUILD_TYPE not set
 if(NOT CMAKE_BUILD_TYPE)
@@ -27,6 +27,11 @@ endif()
 set(LIBRARY_NAME "SimpleLogger")
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
+if(BUILD_TESTS)
+    enable_testing()
+    add_subdirectory(src/tests)
+endif()
 
 add_subdirectory(src)
 

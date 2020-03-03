@@ -24,5 +24,3 @@ install(TARGETS ${STATIC_LIBRARY_NAME}
     LIBRARY DESTINATION lib
     PUBLIC_HEADER DESTINATION include
 )
-
-add_subdirectory(tests)
