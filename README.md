@@ -34,7 +34,7 @@ include_directories(SimpleLogger/src)
 Link to the library:
 
 ```
-target_link_libraries(${YOUR_TARGET_NAME} SimpleLogger)
+target_link_libraries(${YOUR_TARGET_NAME} SimpleLogger_static)
 ```
 
 In your code:
