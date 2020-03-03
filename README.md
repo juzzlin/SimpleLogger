@@ -27,7 +27,7 @@ Copy contents of `SimpleLogger` under your main project (or clone as a Git submo
 In your `CMakeLists.txt`:
 
 ```
-add_subdirectory(SimpleLogger)
+add_subdirectory(SimpleLogger EXCLUDE_FROM_ALL)
 include_directories(SimpleLogger/src)
 ```
 
@@ -45,6 +45,8 @@ In your code:
 
 ## Use as a library
 
+Build and install:
+
 `$ mkdir build && cd build`
 
 `$ cmake ..`
@@ -52,6 +54,8 @@ In your code:
 `$ make`
 
 `$ sudo make install`
+
+Link to `libSimpleLogger_static.a` or `libSimpleLogger.so`.
 
 # Examples
 

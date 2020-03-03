@@ -3,8 +3,6 @@ project(SimpleLogger)
 cmake_minimum_required(VERSION 2.8.12)
 cmake_policy(VERSION 2.8.12)
 
-option(SIMPLE_LOGGER_SHARED_LIB "Build a shared library" OFF)
-
 enable_testing()
 
 # Default to release C++ flags if CMAKE_BUILD_TYPE not set
