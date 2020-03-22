@@ -66,6 +66,12 @@ public:
         EpochMicroseconds
     };
 
+    enum class Append : bool
+    {
+        NoAppend = false,
+        Append = true
+     };
+
     //! Constructor.
     Logger();
 
@@ -77,6 +83,12 @@ public:
      *  \param append The existing log will be appended if true.
      *  Throws on error. */
     static void init(std::string filename, bool append = false);
+
+    /*! Initialize the logger using an enum type for append mode.
+     *  \param filename Log to filename. Disabled if empty.
+     *  \param append The existing log will be appended if Append.
+     *  Throws on error. */
+        static void init(std::string filename, Append append);
 
     //! Enable/disable echo mode.
     //! \param enable Echo everything if true. Default is false.
