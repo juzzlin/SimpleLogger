@@ -26,12 +26,14 @@
 
 // Don't compile asserts away
 #ifdef NDEBUG
-    #undef NDEBUG
+#undef NDEBUG
 #endif
 
 #include <cassert>
 #include <cstdlib>
 #include <sstream>
+
+namespace juzzlin::StreamTest {
 
 void assertMessage(std::stringstream & stream, std::string message, std::string timestampSeparator)
 {
@@ -45,64 +47,152 @@ void assertNotMessage(std::stringstream & stream, std::string message, std::stri
     assert(stream.str().find(timestampSeparator) == std::string::npos);
 }
 
-int main(int, char **)
+void testFatal_noneLoggingLevel_shouldNotPrintMessage(const std::string & message, const std::string & timestampSeparator)
 {
-    using juzzlin::L;
-
-    L::enableEchoMode(true);
-
-    const std::string message = "Hello, world!";
-    const std::string timestampSeparator = " ## ";
-    L::setTimestampMode(L::TimestampMode::DateTime, timestampSeparator);
-
     L::setLoggingLevel(L::Level::None);
-    std::stringstream ssF;
-    L::setStream(L::Level::Fatal, ssF);
+    std::stringstream ss;
+    L::setStream(L::Level::Fatal, ss);
     L().fatal() << message;
-    assertNotMessage(ssF, message, timestampSeparator);
+    assertNotMessage(ss, message, timestampSeparator);
+}
+
+void testFatal_fatalLoggingLevel_shouldPrintMessage(const std::string & message, const std::string & timestampSeparator)
+{
+    std::stringstream ss;
+    L::setStream(L::Level::Fatal, ss);
     L::setLoggingLevel(L::Level::Fatal);
     L().fatal() << message;
-    assertMessage(ssF, message, timestampSeparator);
+    assertMessage(ss, message, timestampSeparator);
+}
 
-    std::stringstream ssE;
-    L::setStream(L::Level::Error, ssE);
+void testError_higherLoggingLevel_shouldNotPrintMessage(const std::string & message, const std::string & timestampSeparator)
+{
+    L::setLoggingLevel(L::Level::Fatal);
+    std::stringstream ss;
+    L::setStream(L::Level::Error, ss);
     L().error() << message;
-    assertNotMessage(ssE, message, timestampSeparator);
+    assertNotMessage(ss, message, timestampSeparator);
+}
+
+void testError_errorLoggingLevel_shouldPrintMessage(const std::string & message, const std::string & timestampSeparator)
+{
+    std::stringstream ss;
+    L::setStream(L::Level::Error, ss);
     L::setLoggingLevel(L::Level::Error);
     L().error() << message;
-    assertMessage(ssE, message, timestampSeparator);
+    assertMessage(ss, message, timestampSeparator);
+}
 
-    std::stringstream ssW;
-    L::setStream(L::Level::Warning, ssW);
+void testWarning_higherLoggingLevel_shouldNotPrintMessage(const std::string & message, const std::string & timestampSeparator)
+{
+    L::setLoggingLevel(L::Level::Error);
+    std::stringstream ss;
+    L::setStream(L::Level::Warning, ss);
     L().warning() << message;
-    assertNotMessage(ssW, message, timestampSeparator);
+    assertNotMessage(ss, message, timestampSeparator);
+}
+
+void testWarning_warningLoggingLevel_shouldPrintMessage(const std::string & message, const std::string & timestampSeparator)
+{
+    std::stringstream ss;
+    L::setStream(L::Level::Warning, ss);
     L::setLoggingLevel(L::Level::Warning);
     L().warning() << message;
-    assertMessage(ssW, message, timestampSeparator);
+    assertMessage(ss, message, timestampSeparator);
+}
 
-    std::stringstream ssI;
-    L::setStream(L::Level::Info, ssI);
+void testInfo_higherLoggingLevel_shouldNotPrintMessage(const std::string & message, const std::string & timestampSeparator)
+{
+    L::setLoggingLevel(L::Level::Warning);
+    std::stringstream ss;
+    L::setStream(L::Level::Info, ss);
     L().info() << message;
-    assertNotMessage(ssI, message, timestampSeparator);
+    assertNotMessage(ss, message, timestampSeparator);
+}
+
+void testInfo_infoLoggingLevel_shouldPrintMessage(const std::string & message, const std::string & timestampSeparator)
+{
+    std::stringstream ss;
+    L::setStream(L::Level::Info, ss);
     L::setLoggingLevel(L::Level::Info);
     L().info() << message;
-    assertMessage(ssI, message, timestampSeparator);
+    assertMessage(ss, message, timestampSeparator);
+}
 
-    std::stringstream ssD;
-    L::setStream(L::Level::Debug, ssD);
+void testDebug_higherLoggingLevel_shouldNotPrintMessage(const std::string & message, const std::string & timestampSeparator)
+{
+    L::setLoggingLevel(L::Level::Info);
+    std::stringstream ss;
+    L::setStream(L::Level::Debug, ss);
     L().debug() << message;
-    assertNotMessage(ssD, message, timestampSeparator);
+    assertNotMessage(ss, message, timestampSeparator);
+}
+
+void testDebug_debugLoggingLevel_shouldPrintMessage(const std::string & message, const std::string & timestampSeparator)
+{
+    std::stringstream ss;
+    L::setStream(L::Level::Debug, ss);
     L::setLoggingLevel(L::Level::Debug);
     L().debug() << message;
-    assertMessage(ssD, message, timestampSeparator);
+    assertMessage(ss, message, timestampSeparator);
+}
 
-    std::stringstream ssT;
-    L::setStream(L::Level::Trace, ssT);
+void testTrace_higherLoggingLevel_shouldNotPrintMessage(const std::string & message, const std::string & timestampSeparator)
+{
+    L::setLoggingLevel(L::Level::Debug);
+    std::stringstream ss;
+    L::setStream(L::Level::Trace, ss);
     L().trace() << message;
-    assertNotMessage(ssT, message, timestampSeparator);
+    assertNotMessage(ss, message, timestampSeparator);
+}
+
+void testTrace_traceLoggingLevel_shouldPrintMessage(const std::string & message, const std::string & timestampSeparator)
+{
+    std::stringstream ss;
+    L::setStream(L::Level::Trace, ss);
     L::setLoggingLevel(L::Level::Trace);
     L().trace() << message;
-    assertMessage(ssT, message, timestampSeparator);
+    assertMessage(ss, message, timestampSeparator);
+}
+
+void initializeLogger(const std::string & timestampSeparator)
+{
+    L::enableEchoMode(true);
+    L::setTimestampMode(L::TimestampMode::DateTime, timestampSeparator);
+}
+
+} // namespace juzzlin::StreamTest
+
+int main(int, char **)
+{
+    const std::string timestampSeparator = " ## ";
+    juzzlin::StreamTest::initializeLogger(timestampSeparator);
+
+    const std::string message = "Hello, world!";
+
+    juzzlin::StreamTest::testFatal_noneLoggingLevel_shouldNotPrintMessage(message, timestampSeparator);
+
+    juzzlin::StreamTest::testFatal_fatalLoggingLevel_shouldPrintMessage(message, timestampSeparator);
+
+    juzzlin::StreamTest::testError_higherLoggingLevel_shouldNotPrintMessage(message, timestampSeparator);
+
+    juzzlin::StreamTest::testError_errorLoggingLevel_shouldPrintMessage(message, timestampSeparator);
+
+    juzzlin::StreamTest::testWarning_higherLoggingLevel_shouldNotPrintMessage(message, timestampSeparator);
+
+    juzzlin::StreamTest::testWarning_warningLoggingLevel_shouldPrintMessage(message, timestampSeparator);
+
+    juzzlin::StreamTest::testInfo_higherLoggingLevel_shouldNotPrintMessage(message, timestampSeparator);
+
+    juzzlin::StreamTest::testInfo_infoLoggingLevel_shouldPrintMessage(message, timestampSeparator);
+
+    juzzlin::StreamTest::testDebug_higherLoggingLevel_shouldNotPrintMessage(message, timestampSeparator);
+
+    juzzlin::StreamTest::testDebug_debugLoggingLevel_shouldPrintMessage(message, timestampSeparator);
+
+    juzzlin::StreamTest::testTrace_higherLoggingLevel_shouldNotPrintMessage(message, timestampSeparator);
+
+    juzzlin::StreamTest::testTrace_traceLoggingLevel_shouldPrintMessage(message, timestampSeparator);
 
     return EXIT_SUCCESS;
 }
