@@ -32,10 +32,6 @@
 #include <mutex>
 #include <stdexcept>
 
-#ifdef Q_OS_ANDROID
-#include <QDebug>
-#endif
-
 namespace juzzlin {
 
 class Logger::Impl
@@ -230,15 +226,11 @@ void Logger::Impl::flush()
 
     if (Impl::m_echoMode)
     {
-#ifdef Q_OS_ANDROID
-        qDebug() << m_oss.str().c_str();
-#else
         auto stream = Impl::m_streams[m_activeLevel];
         if (stream) {
             *stream << m_oss.str() << std::endl;
             stream->flush();
         }
-#endif
     }
 }
 
