@@ -22,8 +22,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef JUZZLIN_LOGGER_HPP
-#define JUZZLIN_LOGGER_HPP
+#ifndef JUZZLIN_SIMPLE_LOGGER_HPP
+#define JUZZLIN_SIMPLE_LOGGER_HPP
 
 #include <memory>
 #include <sstream>
@@ -42,7 +42,7 @@ namespace juzzlin {
  * L().info() << "Initialization finished.";
  * L().error() << "Foo happened!";
  */
-class Logger
+class SimpleLogger
 {
 public:
     enum class Level
@@ -66,10 +66,10 @@ public:
     };
 
     //! Constructor.
-    Logger();
+    SimpleLogger();
 
     //! Destructor.
-    ~Logger();
+    ~SimpleLogger();
 
     /*! Initialize the logger.
      *  \param filename Log to filename. Disabled if empty.
@@ -122,15 +122,15 @@ public:
     std::ostringstream & fatal();
 
 private:
-    Logger(const Logger & r) = delete;
-    Logger & operator=(const Logger & r) = delete;
+    SimpleLogger(const SimpleLogger & r) = delete;
+    SimpleLogger & operator=(const SimpleLogger & r) = delete;
 
     class Impl;
     std::unique_ptr<Impl> m_impl;
 };
 
-using L = Logger;
+using L = SimpleLogger;
 
-} // juzzlin
+} // namespace juzzlin
 
-#endif // JUZZLIN_LOGGER_HPP
+#endif // JUZZLIN_SIMPLE_LOGGER_HPP

@@ -34,7 +34,7 @@
 
 namespace juzzlin {
 
-class Logger::Impl
+class SimpleLogger::Impl
 {
 public:
 
@@ -56,11 +56,11 @@ public:
 
     static void enableEchoMode(bool enable);
 
-    static void setLevelSymbol(Logger::Level level, std::string symbol);
+    static void setLevelSymbol(SimpleLogger::Level level, std::string symbol);
 
-    static void setLoggingLevel(Logger::Level level);
+    static void setLoggingLevel(SimpleLogger::Level level);
 
-    static void setTimestampMode(Logger::TimestampMode timestampMode, std::string separator);
+    static void setTimestampMode(SimpleLogger::TimestampMode timestampMode, std::string separator);
 
     static void setStream(Level level, std::ostream & stream);
 
@@ -68,7 +68,7 @@ public:
 
     void flush();
 
-    std::ostringstream & getStream(Logger::Level level);
+    std::ostringstream & getStream(SimpleLogger::Level level);
 
     void prefixTimestamp();
 
@@ -76,77 +76,77 @@ private:
 
     static bool m_echoMode;
 
-    static Logger::Level m_level;
+    static SimpleLogger::Level m_level;
 
-    static Logger::TimestampMode m_timestampMode;
+    static SimpleLogger::TimestampMode m_timestampMode;
 
     static std::string m_timestampSeparator;
 
     static std::ofstream m_fout;
 
-    using SymbolMap = std::map<Logger::Level, std::string>;
+    using SymbolMap = std::map<SimpleLogger::Level, std::string>;
     static SymbolMap m_symbols;
 
-    using StreamMap = std::map<Logger::Level, std::ostream *>;
+    using StreamMap = std::map<SimpleLogger::Level, std::ostream *>;
     static StreamMap m_streams;
 
     static std::recursive_mutex m_mutex;
 
-    Logger::Level m_activeLevel = Logger::Level::Info;
+    SimpleLogger::Level m_activeLevel = SimpleLogger::Level::Info;
 
     std::lock_guard<std::recursive_mutex> m_lock;
 
     std::ostringstream m_oss;
 };
 
-bool Logger::Impl::m_echoMode = true;
+bool SimpleLogger::Impl::m_echoMode = true;
 
-Logger::Level Logger::Impl::m_level = Logger::Level::Info;
+SimpleLogger::Level SimpleLogger::Impl::m_level = SimpleLogger::Level::Info;
 
-Logger::TimestampMode Logger::Impl::m_timestampMode = Logger::TimestampMode::DateTime;
+SimpleLogger::TimestampMode SimpleLogger::Impl::m_timestampMode = SimpleLogger::TimestampMode::DateTime;
 
-std::string Logger::Impl::m_timestampSeparator = ": ";
+std::string SimpleLogger::Impl::m_timestampSeparator = ": ";
 
-std::ofstream Logger::Impl::m_fout;
+std::ofstream SimpleLogger::Impl::m_fout;
 
 // Default level symbols
-Logger::Impl::SymbolMap Logger::Impl::m_symbols = {
-    {Logger::Level::Trace,   "T:"},
-    {Logger::Level::Debug,   "D:"},
-    {Logger::Level::Info,    "I:"},
-    {Logger::Level::Warning, "W:"},
-    {Logger::Level::Error,   "E:"},
-    {Logger::Level::Fatal,   "F:"}
+SimpleLogger::Impl::SymbolMap SimpleLogger::Impl::m_symbols = {
+    { SimpleLogger::Level::Trace, "T:" },
+    { SimpleLogger::Level::Debug, "D:" },
+    { SimpleLogger::Level::Info, "I:" },
+    { SimpleLogger::Level::Warning, "W:" },
+    { SimpleLogger::Level::Error, "E:" },
+    { SimpleLogger::Level::Fatal, "F:" }
 };
 
 // Default streams
-Logger::Impl::StreamMap Logger::Impl::m_streams = {
-    {Logger::Level::Trace,   &std::cout},
-    {Logger::Level::Debug,   &std::cout},
-    {Logger::Level::Info,    &std::cout},
-    {Logger::Level::Warning, &std::cerr},
-    {Logger::Level::Error,   &std::cerr},
-    {Logger::Level::Fatal,   &std::cerr}
+SimpleLogger::Impl::StreamMap SimpleLogger::Impl::m_streams = {
+    { SimpleLogger::Level::Trace, &std::cout },
+    { SimpleLogger::Level::Debug, &std::cout },
+    { SimpleLogger::Level::Info, &std::cout },
+    { SimpleLogger::Level::Warning, &std::cerr },
+    { SimpleLogger::Level::Error, &std::cerr },
+    { SimpleLogger::Level::Fatal, &std::cerr }
 };
 
-std::recursive_mutex Logger::Impl::m_mutex;
+std::recursive_mutex SimpleLogger::Impl::m_mutex;
 
-Logger::Impl::Impl()
-  : m_lock(Logger::Impl::m_mutex)
+SimpleLogger::Impl::Impl()
+  : m_lock(SimpleLogger::Impl::m_mutex)
 {
 }
 
-Logger::Impl::~Impl()
+SimpleLogger::Impl::~Impl()
 {
     flush();
 }
 
-void Logger::Impl::enableEchoMode(bool enable)
+void SimpleLogger::Impl::enableEchoMode(bool enable)
 {
     Impl::m_echoMode = enable;
 }
 
-std::ostringstream & Logger::Impl::getStream(Logger::Level level)
+std::ostringstream & SimpleLogger::Impl::getStream(SimpleLogger::Level level)
 {
     m_activeLevel = level;
     Impl::prefixTimestamp();
@@ -154,23 +154,23 @@ std::ostringstream & Logger::Impl::getStream(Logger::Level level)
     return m_oss;
 }
 
-void Logger::Impl::setLevelSymbol(Level level, std::string symbol)
+void SimpleLogger::Impl::setLevelSymbol(Level level, std::string symbol)
 {
     Impl::m_symbols[level] = symbol;
 }
 
-void Logger::Impl::setLoggingLevel(Logger::Level level)
+void SimpleLogger::Impl::setLoggingLevel(SimpleLogger::Level level)
 {
     Impl::m_level = level;
 }
 
-void Logger::Impl::setTimestampMode(TimestampMode timestampMode, std::string separator)
+void SimpleLogger::Impl::setTimestampMode(TimestampMode timestampMode, std::string separator)
 {
     Impl::m_timestampMode = timestampMode;
     Impl::m_timestampSeparator = separator;
 }
 
-void Logger::Impl::prefixTimestamp()
+void SimpleLogger::Impl::prefixTimestamp()
 {
     std::string timeStr;
 
@@ -179,23 +179,21 @@ void Logger::Impl::prefixTimestamp()
 
     switch (Impl::m_timestampMode)
     {
-    case Logger::TimestampMode::None:
+    case SimpleLogger::TimestampMode::None:
         break;
-    case Logger::TimestampMode::DateTime:
-    {
+    case SimpleLogger::TimestampMode::DateTime: {
         time_t rawTime;
         time(&rawTime);
         timeStr = ctime(&rawTime);
         timeStr.erase(timeStr.length() - 1);
-    }
-        break;
-    case Logger::TimestampMode::EpochSeconds:
+    } break;
+    case SimpleLogger::TimestampMode::EpochSeconds:
         timeStr = std::to_string(duration_cast<std::chrono::seconds>(system_clock::now().time_since_epoch()).count());
         break;
-    case Logger::TimestampMode::EpochMilliseconds:
+    case SimpleLogger::TimestampMode::EpochMilliseconds:
         timeStr = std::to_string(duration_cast<std::chrono::milliseconds>(system_clock::now().time_since_epoch()).count());
         break;
-    case Logger::TimestampMode::EpochMicroseconds:
+    case SimpleLogger::TimestampMode::EpochMicroseconds:
         timeStr = std::to_string(duration_cast<std::chrono::microseconds>(system_clock::now().time_since_epoch()).count());
         break;
     }
@@ -206,7 +204,7 @@ void Logger::Impl::prefixTimestamp()
     }
 }
 
-void Logger::Impl::flush()
+void SimpleLogger::Impl::flush()
 {
     if (m_activeLevel < m_level)
     {
@@ -234,7 +232,7 @@ void Logger::Impl::flush()
     }
 }
 
-void Logger::Impl::init(std::string filename, bool append)
+void SimpleLogger::Impl::init(std::string filename, bool append)
 {
     if (!filename.empty())
     {
@@ -246,111 +244,111 @@ void Logger::Impl::init(std::string filename, bool append)
     }
 }
 
-std::ostringstream & Logger::Impl::trace()
+std::ostringstream & SimpleLogger::Impl::trace()
 {
-    return getStream(Logger::Level::Trace);
+    return getStream(SimpleLogger::Level::Trace);
 }
 
-std::ostringstream & Logger::Impl::debug()
+std::ostringstream & SimpleLogger::Impl::debug()
 {
-    return getStream(Logger::Level::Debug);
+    return getStream(SimpleLogger::Level::Debug);
 }
 
-std::ostringstream & Logger::Impl::info()
+std::ostringstream & SimpleLogger::Impl::info()
 {
-    return getStream(Logger::Level::Info);
+    return getStream(SimpleLogger::Level::Info);
 }
 
-std::ostringstream & Logger::Impl::warning()
+std::ostringstream & SimpleLogger::Impl::warning()
 {
-    return getStream(Logger::Level::Warning);
+    return getStream(SimpleLogger::Level::Warning);
 }
 
-std::ostringstream & Logger::Impl::error()
+std::ostringstream & SimpleLogger::Impl::error()
 {
-    return getStream(Logger::Level::Error);
+    return getStream(SimpleLogger::Level::Error);
 }
 
-std::ostringstream & Logger::Impl::fatal()
+std::ostringstream & SimpleLogger::Impl::fatal()
 {
-    return getStream(Logger::Level::Fatal);
+    return getStream(SimpleLogger::Level::Fatal);
 }
 
-void Logger::Impl::setStream(Level level, std::ostream & stream)
+void SimpleLogger::Impl::setStream(Level level, std::ostream & stream)
 {
-    Logger::Impl::m_streams[level] = &stream;
+    SimpleLogger::Impl::m_streams[level] = &stream;
 }
 
-Logger::Logger()
-    : m_impl(new Logger::Impl)
+SimpleLogger::SimpleLogger()
+  : m_impl(new SimpleLogger::Impl)
 {
 }
 
-void Logger::init(std::string filename, bool append)
+void SimpleLogger::init(std::string filename, bool append)
 {
     Impl::init(filename, append);
 }
 
-void Logger::enableEchoMode(bool enable)
+void SimpleLogger::enableEchoMode(bool enable)
 {
     Impl::enableEchoMode(enable);
 }
 
-void Logger::setLoggingLevel(Level level)
+void SimpleLogger::setLoggingLevel(Level level)
 {
     Impl::setLoggingLevel(level);
 }
 
-void Logger::setLevelSymbol(Level level, std::string symbol)
+void SimpleLogger::setLevelSymbol(Level level, std::string symbol)
 {
     Impl::setLevelSymbol(level, symbol);
 }
 
-void Logger::setTimestampMode(TimestampMode timestampMode, std::string separator)
+void SimpleLogger::setTimestampMode(TimestampMode timestampMode, std::string separator)
 {
     Impl::setTimestampMode(timestampMode, separator);
 }
 
-void Logger::setStream(Level level, std::ostream & stream)
+void SimpleLogger::setStream(Level level, std::ostream & stream)
 {
     Impl::setStream(level, stream);
 }
 
-std::ostringstream & Logger::trace()
+std::ostringstream & SimpleLogger::trace()
 {
     return m_impl->trace();
 }
 
-std::ostringstream & Logger::debug()
+std::ostringstream & SimpleLogger::debug()
 {
     return m_impl->debug();
 }
 
-std::ostringstream & Logger::info()
+std::ostringstream & SimpleLogger::info()
 {
     return m_impl->info();
 }
 
-std::ostringstream & Logger::warning()
+std::ostringstream & SimpleLogger::warning()
 {
     return m_impl->warning();
 }
 
-std::ostringstream & Logger::error()
+std::ostringstream & SimpleLogger::error()
 {
     return m_impl->error();
 }
 
-std::ostringstream & Logger::fatal()
+std::ostringstream & SimpleLogger::fatal()
 {
     return m_impl->fatal();
 }
 
-std::string Logger::version()
+std::string SimpleLogger::version()
 {
     return "1.4.0";
 }
 
-Logger::~Logger() = default;
+SimpleLogger::~SimpleLogger() = default;
 
 } // juzzlin
