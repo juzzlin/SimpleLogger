@@ -25,7 +25,6 @@
 #ifndef JUZZLIN_LOGGER_HPP
 #define JUZZLIN_LOGGER_HPP
 
-#include <cstdio>
 #include <memory>
 #include <sstream>
 
