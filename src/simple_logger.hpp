@@ -62,7 +62,8 @@ public:
         DateTime,
         EpochSeconds,
         EpochMilliseconds,
-        EpochMicroseconds
+        EpochMicroseconds,
+        ISODateTime
     };
 
     //! Constructor.

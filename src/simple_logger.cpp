@@ -72,7 +72,7 @@ public:
     std::ostringstream & prepareStreamForLoggingLevel(SimpleLogger::Level level);
 
 private:
-    std::string currentDateTime() const;
+    std::string currentDateTime(const std::string & dateTimeFormat) const;
 
     void flushFileIfOpen();
 
@@ -178,14 +178,14 @@ void SimpleLogger::Impl::setTimestampMode(TimestampMode timestampMode, std::stri
     Impl::m_timestampSeparator = separator;
 }
 
-std::string SimpleLogger::Impl::currentDateTime() const
+std::string SimpleLogger::Impl::currentDateTime(const std::string & dateTimeFormat) const
 {
     const auto now = std::chrono::system_clock::now();
     const auto rawTime = std::chrono::system_clock::to_time_t(now);
     const auto timeInfo = std::localtime(&rawTime);
 
     std::ostringstream oss;
-    oss << std::put_time(timeInfo, "%a %b %e %H:%M:%S %Y");
+    oss << std::put_time(timeInfo, dateTimeFormat.c_str());
 
     return oss.str();
 }
@@ -201,7 +201,10 @@ void SimpleLogger::Impl::prefixTimestamp()
     case SimpleLogger::TimestampMode::None:
         break;
     case SimpleLogger::TimestampMode::DateTime: {
-        timeStr = currentDateTime();
+        timeStr = currentDateTime("%a %b %e %H:%M:%S %Y");
+    } break;
+    case SimpleLogger::TimestampMode::ISODateTime: {
+        timeStr = currentDateTime("%Y-%m-%dT%H:%M:%S");
     } break;
     case SimpleLogger::TimestampMode::EpochSeconds:
         timeStr = std::to_string(duration_cast<std::chrono::seconds>(now.time_since_epoch()).count());
