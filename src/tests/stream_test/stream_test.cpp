@@ -290,5 +290,6 @@ void runTests()
 int main()
 {
     juzzlin::StreamTest::runTests();
+
     return EXIT_SUCCESS;
 }
