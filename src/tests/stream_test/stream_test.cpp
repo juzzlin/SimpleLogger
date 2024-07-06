@@ -31,17 +31,19 @@
 
 #include <cassert>
 #include <cstdlib>
+#include <iostream>
+#include <regex>
 #include <sstream>
 
 namespace juzzlin::StreamTest {
 
-void assertMessage(std::stringstream & stream, std::string message, std::string timestampSeparator)
+void assertMessage(std::stringstream & stream, const std::string & message, const std::string & timestampSeparator)
 {
     assert(stream.str().find(message) != std::string::npos);
     assert(stream.str().find(timestampSeparator) != std::string::npos);
 }
 
-void assertNotMessage(std::stringstream & stream, std::string message, std::string timestampSeparator)
+void assertNotMessage(std::stringstream & stream, const std::string & message, const std::string & timestampSeparator)
 {
     assert(stream.str().find(message) == std::string::npos);
     assert(stream.str().find(timestampSeparator) == std::string::npos);
@@ -158,41 +160,135 @@ void testTrace_traceLoggingLevel_shouldPrintMessage(const std::string & message,
 void initializeLogger(const std::string & timestampSeparator)
 {
     L::enableEchoMode(true);
-    L::setTimestampMode(L::TimestampMode::DateTime, timestampSeparator);
+    L::setTimestampMode(L::TimestampMode::DateTime);
+    L::setTimestampSeparator(timestampSeparator);
+}
+
+void testTimestampMode_none_shouldNotPrintTimestamp(const std::string & message)
+{
+    L::setTimestampMode(L::TimestampMode::None);
+    std::stringstream ss;
+    L::setStream(L::Level::Info, ss);
+    L().info() << message;
+    assert(ss.str().find(message) != std::string::npos);
+    assert(ss.str().find(" ## ") == std::string::npos);
+}
+
+void testTimestampMode_dateTime_shouldPrintDateTimeTimestamp(const std::string & message)
+{
+    L::setTimestampMode(L::TimestampMode::DateTime);
+    std::stringstream ss;
+    L::setStream(L::Level::Info, ss);
+    L().info() << message;
+
+    assert(ss.str().find(message) != std::string::npos);
+
+    // Example of expected format: "Mon Jan 1 00:00:00 2021"
+    // Regex to match date-time format (handling single-digit day with optional space)
+    std::regex dateTimeRegex(R"(\w{3} \w{3} \s?\d{1,2} \d{2}:\d{2}:\d{2} \d{4} ##)");
+    assert(std::regex_search(ss.str(), dateTimeRegex));
+}
+
+void testTimestampMode_epochSeconds_shouldPrintEpochSecondsTimestamp(const std::string & message)
+{
+    L::setTimestampMode(L::TimestampMode::EpochSeconds);
+    std::stringstream ss;
+    L::setStream(L::Level::Info, ss);
+    L().info() << message;
+    assert(ss.str().find(message) != std::string::npos);
+
+    // Regex to match epoch seconds format
+    const std::regex epochSecondsRegex(R"(\d{10} ##)");
+    assert(std::regex_search(ss.str(), epochSecondsRegex));
+}
+
+void testTimestampMode_epochMilliseconds_shouldPrintEpochMillisecondsTimestamp(const std::string & message)
+{
+    L::setTimestampMode(L::TimestampMode::EpochMilliseconds);
+    std::stringstream ss;
+    L::setStream(L::Level::Info, ss);
+    L().info() << message;
+    assert(ss.str().find(message) != std::string::npos);
+
+    // Regex to match epoch milliseconds format
+    const std::regex epochMillisecondsRegex(R"(\d{13} ##)");
+    assert(std::regex_search(ss.str(), epochMillisecondsRegex));
+}
+
+void testTimestampMode_epochMicroseconds_shouldPrintEpochMicrosecondsTimestamp(const std::string & message)
+{
+    L::setTimestampMode(L::TimestampMode::EpochMicroseconds);
+    std::stringstream ss;
+    L::setStream(L::Level::Info, ss);
+    L().info() << message;
+    assert(ss.str().find(message) != std::string::npos);
+
+    // Regex to match epoch microseconds format
+    const std::regex epochMicrosecondsRegex(R"(\d{16} ##)");
+    assert(std::regex_search(ss.str(), epochMicrosecondsRegex));
+}
+
+void testTimestampMode_ISODateTime_shouldPrintISODateTimeTimestamp(const std::string & message)
+{
+    L::setTimestampMode(L::TimestampMode::ISODateTime);
+    std::stringstream ss;
+    L::setStream(L::Level::Info, ss);
+    L().info() << message;
+    assert(ss.str().find(message) != std::string::npos);
+
+    // Regex to match ISO 8601 date-time format
+    const std::regex isoDateTimeRegex(R"(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:.\d+)?Z? ##)");
+    assert(std::regex_search(ss.str(), isoDateTimeRegex));
+}
+
+void runTests()
+{
+    const std::string message = "Hello world!";
+    const std::string timestampSeparator = " ## ";
+
+    initializeLogger(timestampSeparator);
+
+    testFatal_noneLoggingLevel_shouldNotPrintMessage(message, timestampSeparator);
+
+    testFatal_fatalLoggingLevel_shouldPrintMessage(message, timestampSeparator);
+
+    testError_higherLoggingLevel_shouldNotPrintMessage(message, timestampSeparator);
+
+    testError_errorLoggingLevel_shouldPrintMessage(message, timestampSeparator);
+
+    testWarning_higherLoggingLevel_shouldNotPrintMessage(message, timestampSeparator);
+
+    testWarning_warningLoggingLevel_shouldPrintMessage(message, timestampSeparator);
+
+    testInfo_higherLoggingLevel_shouldNotPrintMessage(message, timestampSeparator);
+
+    testInfo_infoLoggingLevel_shouldPrintMessage(message, timestampSeparator);
+
+    testDebug_higherLoggingLevel_shouldNotPrintMessage(message, timestampSeparator);
+
+    testDebug_debugLoggingLevel_shouldPrintMessage(message, timestampSeparator);
+
+    testTrace_higherLoggingLevel_shouldNotPrintMessage(message, timestampSeparator);
+
+    testTrace_traceLoggingLevel_shouldPrintMessage(message, timestampSeparator);
+
+    testTimestampMode_none_shouldNotPrintTimestamp(message);
+
+    testTimestampMode_dateTime_shouldPrintDateTimeTimestamp(message);
+
+    testTimestampMode_epochSeconds_shouldPrintEpochSecondsTimestamp(message);
+
+    testTimestampMode_epochMilliseconds_shouldPrintEpochMillisecondsTimestamp(message);
+
+    testTimestampMode_epochMicroseconds_shouldPrintEpochMicrosecondsTimestamp(message);
+
+    testTimestampMode_ISODateTime_shouldPrintISODateTimeTimestamp(message);
 }
 
 } // namespace juzzlin::StreamTest
 
-int main(int, char **)
+int main()
 {
-    const std::string timestampSeparator = " ## ";
-    juzzlin::StreamTest::initializeLogger(timestampSeparator);
-
-    const std::string message = "Hello, world!";
-
-    juzzlin::StreamTest::testFatal_noneLoggingLevel_shouldNotPrintMessage(message, timestampSeparator);
-
-    juzzlin::StreamTest::testFatal_fatalLoggingLevel_shouldPrintMessage(message, timestampSeparator);
-
-    juzzlin::StreamTest::testError_higherLoggingLevel_shouldNotPrintMessage(message, timestampSeparator);
-
-    juzzlin::StreamTest::testError_errorLoggingLevel_shouldPrintMessage(message, timestampSeparator);
-
-    juzzlin::StreamTest::testWarning_higherLoggingLevel_shouldNotPrintMessage(message, timestampSeparator);
-
-    juzzlin::StreamTest::testWarning_warningLoggingLevel_shouldPrintMessage(message, timestampSeparator);
-
-    juzzlin::StreamTest::testInfo_higherLoggingLevel_shouldNotPrintMessage(message, timestampSeparator);
-
-    juzzlin::StreamTest::testInfo_infoLoggingLevel_shouldPrintMessage(message, timestampSeparator);
-
-    juzzlin::StreamTest::testDebug_higherLoggingLevel_shouldNotPrintMessage(message, timestampSeparator);
-
-    juzzlin::StreamTest::testDebug_debugLoggingLevel_shouldPrintMessage(message, timestampSeparator);
-
-    juzzlin::StreamTest::testTrace_higherLoggingLevel_shouldNotPrintMessage(message, timestampSeparator);
-
-    juzzlin::StreamTest::testTrace_traceLoggingLevel_shouldPrintMessage(message, timestampSeparator);
-
+    juzzlin::StreamTest::runTests();
     return EXIT_SUCCESS;
 }

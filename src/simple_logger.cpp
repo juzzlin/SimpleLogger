@@ -61,7 +61,11 @@ public:
 
     static void setLoggingLevel(SimpleLogger::Level level);
 
+    static void setTimestampMode(SimpleLogger::TimestampMode timestampMode);
+
     static void setTimestampMode(SimpleLogger::TimestampMode timestampMode, std::string separator);
+
+    static void setTimestampSeparator(std::string separator);
 
     static void setStream(Level level, std::ostream & stream);
 
@@ -140,7 +144,7 @@ SimpleLogger::Impl::StreamMap SimpleLogger::Impl::m_streams = {
 std::recursive_mutex SimpleLogger::Impl::m_mutex;
 
 SimpleLogger::Impl::Impl()
-  : m_lock(SimpleLogger::Impl::m_mutex)
+  : m_lock(m_mutex)
 {
 }
 
@@ -151,31 +155,41 @@ SimpleLogger::Impl::~Impl()
 
 void SimpleLogger::Impl::enableEchoMode(bool enable)
 {
-    Impl::m_echoMode = enable;
+    m_echoMode = enable;
 }
 
 std::ostringstream & SimpleLogger::Impl::prepareStreamForLoggingLevel(SimpleLogger::Level level)
 {
     m_activeLevel = level;
     prefixTimestamp();
-    m_message << Impl::m_symbols[level] << " ";
+    m_message << m_symbols[level] << " ";
     return m_message;
 }
 
 void SimpleLogger::Impl::setLevelSymbol(Level level, std::string symbol)
 {
-    Impl::m_symbols[level] = symbol;
+    m_symbols[level] = symbol;
 }
 
 void SimpleLogger::Impl::setLoggingLevel(SimpleLogger::Level level)
 {
-    Impl::m_level = level;
+    m_level = level;
+}
+
+void SimpleLogger::Impl::setTimestampMode(TimestampMode timestampMode)
+{
+    m_timestampMode = timestampMode;
 }
 
 void SimpleLogger::Impl::setTimestampMode(TimestampMode timestampMode, std::string separator)
 {
-    Impl::m_timestampMode = timestampMode;
-    Impl::m_timestampSeparator = separator;
+    m_timestampMode = timestampMode;
+    m_timestampSeparator = separator;
+}
+
+void SimpleLogger::Impl::setTimestampSeparator(std::string separator)
+{
+    m_timestampSeparator = separator;
 }
 
 std::string SimpleLogger::Impl::currentDateTime(const std::string & dateTimeFormat) const
@@ -323,9 +337,19 @@ void SimpleLogger::setLevelSymbol(Level level, std::string symbol)
     Impl::setLevelSymbol(level, symbol);
 }
 
+void SimpleLogger::setTimestampMode(TimestampMode timestampMode)
+{
+    Impl::setTimestampMode(timestampMode);
+}
+
 void SimpleLogger::setTimestampMode(TimestampMode timestampMode, std::string separator)
 {
     Impl::setTimestampMode(timestampMode, separator);
+}
+
+void SimpleLogger::setTimestampSeparator(std::string separator)
+{
+    Impl::setTimestampSeparator(separator);
 }
 
 void SimpleLogger::setStream(Level level, std::ostream & stream)

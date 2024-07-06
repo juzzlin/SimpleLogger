@@ -93,8 +93,16 @@ public:
 
     //! Set/enable timestamp mode.
     //! \param timestampMode Timestamp mode enumeration.
+    static void setTimestampMode(TimestampMode timestampMode);
+
+    //! Set/enable timestamp mode.
+    //! \param timestampMode Timestamp mode enumeration.
     //! \param separator Separator string outputted after timestamp.
-    static void setTimestampMode(TimestampMode timestampMode, std::string separator = " ");
+    [[deprecated]] static void setTimestampMode(TimestampMode timestampMode, std::string separator);
+
+    //! Set/enable timestamp mode.
+    //! \param separator Separator string outputted after timestamp.
+    static void setTimestampSeparator(std::string separator);
 
     //! Set specific stream.
     //! \param level The level.

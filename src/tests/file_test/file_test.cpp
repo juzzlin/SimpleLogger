@@ -70,7 +70,8 @@ void initializeLoggger(const std::string & logFileName, const std::string & time
     L::init(logFileName);
     L::enableEchoMode(true);
     L::setLoggingLevel(L::Level::Trace);
-    L::setTimestampMode(L::TimestampMode::DateTime, timestampSeparator);
+    L::setTimestampMode(L::TimestampMode::DateTime);
+    L::setTimestampSeparator(timestampSeparator);
 }
 
 } // namespace juzzlin::FileTest

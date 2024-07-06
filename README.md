@@ -133,7 +133,8 @@ Possible modes: `None`, `EpochSeconds`, `EpochMilliseconds`, `EpochMicroseconds`
 ```
 using juzzlin::L;
 
-L::setTimestampMode(L::TimestampMode::EpochMilliseconds, " ## ");
+L::setTimestampMode(L::TimestampMode::EpochMilliseconds);
+L::setTimestampSeparator(" ## ");
 
 L().info() << "Something happened";
 ```
