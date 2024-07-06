@@ -31,7 +31,6 @@
 
 #include <cassert>
 #include <cstdlib>
-#include <iostream>
 #include <regex>
 #include <sstream>
 
@@ -241,6 +240,19 @@ void testTimestampMode_ISODateTime_shouldPrintISODateTimeTimestamp(const std::st
     assert(std::regex_search(ss.str(), isoDateTimeRegex));
 }
 
+void testTimestampMode_Custom_shouldPrintCustomTimestamp(const std::string & message)
+{
+    L::setCustomTimestampFormat("%H:%M:%S_%Y-%m-%d");
+    std::stringstream ss;
+    L::setStream(L::Level::Info, ss);
+    L().info() << message;
+    assert(ss.str().find(message) != std::string::npos);
+
+    // Regex to match custom format
+    const std::regex isoDateTimeRegex(R"(\d{2}:\d{2}:\d{2}_\d{4}-\d{2}-\d{2} ##)");
+    assert(std::regex_search(ss.str(), isoDateTimeRegex));
+}
+
 void runTests()
 {
     const std::string message = "Hello world!";
@@ -283,6 +295,8 @@ void runTests()
     testTimestampMode_epochMicroseconds_shouldPrintEpochMicrosecondsTimestamp(message);
 
     testTimestampMode_ISODateTime_shouldPrintISODateTimeTimestamp(message);
+
+    testTimestampMode_Custom_shouldPrintCustomTimestamp(message);
 }
 
 } // namespace juzzlin::StreamTest

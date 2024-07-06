@@ -61,9 +61,9 @@ public:
 
     static void setLoggingLevel(SimpleLogger::Level level);
 
-    static void setTimestampMode(SimpleLogger::TimestampMode timestampMode);
+    static void setCustomTimestampFormat(std::string format);
 
-    static void setTimestampMode(SimpleLogger::TimestampMode timestampMode, std::string separator);
+    static void setTimestampMode(SimpleLogger::TimestampMode timestampMode);
 
     static void setTimestampSeparator(std::string separator);
 
@@ -94,6 +94,8 @@ private:
 
     static std::string m_timestampSeparator;
 
+    static std::string m_customTimestampFormat;
+
     static std::ofstream m_fileStream;
 
     using SymbolMap = std::map<SimpleLogger::Level, std::string>;
@@ -118,6 +120,8 @@ SimpleLogger::Level SimpleLogger::Impl::m_level = SimpleLogger::Level::Info;
 SimpleLogger::TimestampMode SimpleLogger::Impl::m_timestampMode = SimpleLogger::TimestampMode::DateTime;
 
 std::string SimpleLogger::Impl::m_timestampSeparator = ": ";
+
+std::string SimpleLogger::Impl::m_customTimestampFormat;
 
 std::ofstream SimpleLogger::Impl::m_fileStream;
 
@@ -176,15 +180,14 @@ void SimpleLogger::Impl::setLoggingLevel(SimpleLogger::Level level)
     m_level = level;
 }
 
+void SimpleLogger::Impl::setCustomTimestampFormat(std::string customTimestampFormat)
+{
+    m_customTimestampFormat = customTimestampFormat;
+}
+
 void SimpleLogger::Impl::setTimestampMode(TimestampMode timestampMode)
 {
     m_timestampMode = timestampMode;
-}
-
-void SimpleLogger::Impl::setTimestampMode(TimestampMode timestampMode, std::string separator)
-{
-    m_timestampMode = timestampMode;
-    m_timestampSeparator = separator;
 }
 
 void SimpleLogger::Impl::setTimestampSeparator(std::string separator)
@@ -228,6 +231,9 @@ void SimpleLogger::Impl::prefixTimestamp()
         break;
     case SimpleLogger::TimestampMode::EpochMicroseconds:
         timeStr = std::to_string(duration_cast<std::chrono::microseconds>(now.time_since_epoch()).count());
+        break;
+    case SimpleLogger::TimestampMode::Custom:
+        timeStr = currentDateTime(m_customTimestampFormat);
         break;
     }
 
@@ -342,14 +348,15 @@ void SimpleLogger::setTimestampMode(TimestampMode timestampMode)
     Impl::setTimestampMode(timestampMode);
 }
 
-void SimpleLogger::setTimestampMode(TimestampMode timestampMode, std::string separator)
+void SimpleLogger::setCustomTimestampFormat(std::string customTimestampFormat)
 {
-    Impl::setTimestampMode(timestampMode, separator);
+    Impl::setTimestampMode(TimestampMode::Custom);
+    Impl::setCustomTimestampFormat(customTimestampFormat);
 }
 
-void SimpleLogger::setTimestampSeparator(std::string separator)
+void SimpleLogger::setTimestampSeparator(std::string timestampSeparator)
 {
-    Impl::setTimestampSeparator(separator);
+    Impl::setTimestampSeparator(timestampSeparator);
 }
 
 void SimpleLogger::setStream(Level level, std::ostream & stream)

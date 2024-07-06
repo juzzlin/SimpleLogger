@@ -63,7 +63,8 @@ public:
         EpochSeconds,
         EpochMilliseconds,
         EpochMicroseconds,
-        ISODateTime
+        ISODateTime,
+        Custom
     };
 
     //! Constructor.
@@ -95,12 +96,11 @@ public:
     //! \param timestampMode Timestamp mode enumeration.
     static void setTimestampMode(TimestampMode timestampMode);
 
-    //! Set/enable timestamp mode.
-    //! \param timestampMode Timestamp mode enumeration.
-    //! \param separator Separator string outputted after timestamp.
-    [[deprecated]] static void setTimestampMode(TimestampMode timestampMode, std::string separator);
+    //! Set custom timestamp format. Sets timestamp mode to TimestampMode::Custom.
+    //! \param customTimestampFormat Timestamp format e.g. "%Y-%m-%dT%H:%M:%S".
+    static void setCustomTimestampFormat(std::string customTimestampFormat);
 
-    //! Set/enable timestamp mode.
+    //! Set/enable timestamp separator.
     //! \param separator Separator string outputted after timestamp.
     static void setTimestampSeparator(std::string separator);
 
