@@ -76,13 +76,13 @@ public:
     std::ostringstream & prepareStreamForLoggingLevel(SimpleLogger::Level level);
 
 private:
-    std::string currentDateTime(const std::string & dateTimeFormat) const;
+    std::string currentDateTime(std::chrono::time_point<std::chrono::system_clock> now, const std::string & dateTimeFormat) const;
 
     void flushFileIfOpen();
 
     void flushEchoIfEnabled();
 
-    void prefixTimestamp();
+    void prefixWithTimestamp();
 
     bool shouldFlush() const;
 
@@ -165,7 +165,7 @@ void SimpleLogger::Impl::enableEchoMode(bool enable)
 std::ostringstream & SimpleLogger::Impl::prepareStreamForLoggingLevel(SimpleLogger::Level level)
 {
     m_activeLevel = level;
-    prefixTimestamp();
+    prefixWithTimestamp();
     m_message << m_symbols[level] << " ";
     return m_message;
 }
@@ -195,50 +195,49 @@ void SimpleLogger::Impl::setTimestampSeparator(std::string separator)
     m_timestampSeparator = separator;
 }
 
-std::string SimpleLogger::Impl::currentDateTime(const std::string & dateTimeFormat) const
+std::string SimpleLogger::Impl::currentDateTime(std::chrono::time_point<std::chrono::system_clock> now, const std::string & dateTimeFormat) const
 {
-    const auto now = std::chrono::system_clock::now();
-    const auto rawTime = std::chrono::system_clock::to_time_t(now);
-    const auto timeInfo = std::localtime(&rawTime);
-
     std::ostringstream oss;
-    oss << std::put_time(timeInfo, dateTimeFormat.c_str());
+    const auto rawTime = std::chrono::system_clock::to_time_t(now);
+    oss << std::put_time(std::localtime(&rawTime), dateTimeFormat.c_str());
 
     return oss.str();
 }
 
-void SimpleLogger::Impl::prefixTimestamp()
+void SimpleLogger::Impl::prefixWithTimestamp()
 {
-    std::string timeStr;
+    std::string timestamp;
 
-    const auto now = std::chrono::system_clock::now();
     using std::chrono::duration_cast;
+    using std::chrono::system_clock;
 
     switch (m_timestampMode) {
     case SimpleLogger::TimestampMode::None:
         break;
     case SimpleLogger::TimestampMode::DateTime: {
-        timeStr = currentDateTime("%a %b %e %H:%M:%S %Y");
+        timestamp = currentDateTime(system_clock::now(), "%a %b %e %H:%M:%S %Y");
     } break;
     case SimpleLogger::TimestampMode::ISODateTime: {
-        timeStr = currentDateTime("%Y-%m-%dT%H:%M:%S");
+        timestamp = currentDateTime(system_clock::now(), "%Y-%m-%dT%H:%M:%S");
     } break;
     case SimpleLogger::TimestampMode::EpochSeconds:
-        timeStr = std::to_string(duration_cast<std::chrono::seconds>(now.time_since_epoch()).count());
+        timestamp = std::to_string(duration_cast<std::chrono::seconds>(system_clock::now().time_since_epoch()).count());
         break;
     case SimpleLogger::TimestampMode::EpochMilliseconds:
-        timeStr = std::to_string(duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count());
+        using std::chrono::duration_cast;
+        timestamp = std::to_string(duration_cast<std::chrono::milliseconds>(system_clock::now().time_since_epoch()).count());
         break;
     case SimpleLogger::TimestampMode::EpochMicroseconds:
-        timeStr = std::to_string(duration_cast<std::chrono::microseconds>(now.time_since_epoch()).count());
+        using std::chrono::duration_cast;
+        timestamp = std::to_string(duration_cast<std::chrono::microseconds>(system_clock::now().time_since_epoch()).count());
         break;
     case SimpleLogger::TimestampMode::Custom:
-        timeStr = currentDateTime(m_customTimestampFormat);
+        timestamp = currentDateTime(system_clock::now(), m_customTimestampFormat);
         break;
     }
 
-    if (!timeStr.empty()) {
-        m_message << timeStr << m_timestampSeparator;
+    if (!timestamp.empty()) {
+        m_message << timestamp << m_timestampSeparator;
     }
 }
 
