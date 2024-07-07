@@ -67,7 +67,7 @@ void testAllLoggingLevels_allMessagesShouldBeFoundInFile(const std::string & log
 
 void initializeLoggger(const std::string & logFileName, const std::string & timestampSeparator)
 {
-    L::init(logFileName);
+    L::initialize(logFileName);
     L::enableEchoMode(true);
     L::setLoggingLevel(L::Level::Trace);
     L::setTimestampMode(L::TimestampMode::DateTime);

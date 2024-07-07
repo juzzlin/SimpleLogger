@@ -35,7 +35,7 @@ namespace juzzlin {
  *
  * using juzzlin::L;
  *
- * L::init("myLog.txt");
+ * L::initialize("myLog.txt");
  *
  * Example logging:
  *
@@ -81,7 +81,7 @@ public:
      *  \param filename Log to filename. Disabled if empty.
      *  \param append The existing log will be appended if true.
      *  Throws on error. */
-    static void init(std::string filename, bool append = false);
+    static void initialize(std::string filename, bool append = false);
 
     //! Enable/disable echo mode.
     //! \param enable Echo everything if true. Default is false.

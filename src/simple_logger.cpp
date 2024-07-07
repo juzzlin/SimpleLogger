@@ -70,7 +70,7 @@ public:
 
     static void setStream(Level level, std::ostream & stream);
 
-    static void init(std::string filename, bool append);
+    static void initialize(std::string filename, bool append);
 
     void flush();
 
@@ -288,7 +288,7 @@ void SimpleLogger::Impl::flush()
     }
 }
 
-void SimpleLogger::Impl::init(std::string filename, bool append)
+void SimpleLogger::Impl::initialize(std::string filename, bool append)
 {
     if (!filename.empty()) {
         m_fileStream.open(filename, append ? std::ofstream::out | std::ofstream::app : std::ofstream::out);
@@ -343,9 +343,9 @@ SimpleLogger::SimpleLogger(const std::string & tag)
 {
 }
 
-void SimpleLogger::init(std::string filename, bool append)
+void SimpleLogger::initialize(std::string filename, bool append)
 {
-    Impl::init(filename, append);
+    Impl::initialize(filename, append);
 }
 
 void SimpleLogger::enableEchoMode(bool enable)

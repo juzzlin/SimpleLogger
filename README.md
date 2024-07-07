@@ -78,7 +78,7 @@ Outputs something like this:
 ```
 using juzzlin::L;
 
-L::init("/tmp/myLog.txt");
+L::initialize("/tmp/myLog.txt");
 
 L().info() << "Something happened";
 ```
@@ -88,7 +88,7 @@ L().info() << "Something happened";
 ```
 using juzzlin::L;
 
-L::init("/tmp/myLog.txt");
+L::initialize("/tmp/myLog.txt");
 L::enableEchoMode(false);
 
 L().info() << "Something happened";
