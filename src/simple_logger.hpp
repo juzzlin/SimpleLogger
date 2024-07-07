@@ -70,6 +70,10 @@ public:
     //! Constructor.
     SimpleLogger();
 
+    //! Constructor.
+    //! \param tag Tag that will be added to the message.
+    SimpleLogger(const std::string & tag);
+
     //! Destructor.
     ~SimpleLogger();
 

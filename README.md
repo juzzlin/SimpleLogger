@@ -111,6 +111,20 @@ Outputs something like this:
 
 `Sat Oct 13 22:38:42 2018 D: A debug thing happened`
 
+## Log with a tag
+
+```
+using juzzlin::L;
+
+L::setLoggingLevel(L::Level::Info);
+
+L("MyTag").info() << "Something happened";
+```
+
+Outputs something like this:
+
+`Sat Oct 13 22:38:42 2018 I: MyTag: Something happened`
+
 ## Set custom level symbols
 
 ```

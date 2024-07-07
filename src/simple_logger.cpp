@@ -38,8 +38,9 @@ namespace juzzlin {
 class SimpleLogger::Impl
 {
 public:
-
     Impl();
+
+    Impl(const std::string & tag);
 
     ~Impl();
 
@@ -82,6 +83,8 @@ private:
 
     void flushEchoIfEnabled();
 
+    void prefixWithLevelAndTag(SimpleLogger::Level level);
+
     void prefixWithTimestamp();
 
     bool shouldFlush() const;
@@ -109,6 +112,8 @@ private:
     SimpleLogger::Level m_activeLevel = SimpleLogger::Level::Info;
 
     std::lock_guard<std::recursive_mutex> m_lock;
+
+    std::string m_tag;
 
     std::ostringstream m_message;
 };
@@ -152,6 +157,12 @@ SimpleLogger::Impl::Impl()
 {
 }
 
+SimpleLogger::Impl::Impl(const std::string & tag)
+  : m_lock(m_mutex)
+  , m_tag(tag)
+{
+}
+
 SimpleLogger::Impl::~Impl()
 {
     flush();
@@ -166,7 +177,7 @@ std::ostringstream & SimpleLogger::Impl::prepareStreamForLoggingLevel(SimpleLogg
 {
     m_activeLevel = level;
     prefixWithTimestamp();
-    m_message << m_symbols[level] << " ";
+    prefixWithLevelAndTag(level);
     return m_message;
 }
 
@@ -202,6 +213,11 @@ std::string SimpleLogger::Impl::currentDateTime(std::chrono::time_point<std::chr
     oss << std::put_time(std::localtime(&rawTime), dateTimeFormat.c_str());
 
     return oss.str();
+}
+
+void SimpleLogger::Impl::prefixWithLevelAndTag(SimpleLogger::Level level)
+{
+    m_message << m_symbols[level] << (!m_tag.empty() ? " " + m_tag + ":" : "") << " ";
 }
 
 void SimpleLogger::Impl::prefixWithTimestamp()
@@ -319,6 +335,11 @@ void SimpleLogger::Impl::setStream(Level level, std::ostream & stream)
 
 SimpleLogger::SimpleLogger()
   : m_impl(std::make_unique<SimpleLogger::Impl>())
+{
+}
+
+SimpleLogger::SimpleLogger(const std::string & tag)
+  : m_impl(std::make_unique<SimpleLogger::Impl>(tag))
 {
 }
 

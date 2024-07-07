@@ -31,21 +31,37 @@
 
 #include <cassert>
 #include <cstdlib>
+#include <iostream>
 #include <regex>
 #include <sstream>
+#include <stdexcept>
 
 namespace juzzlin::StreamTest {
 
+void assertString(std::stringstream & stream, const std::string & message)
+{
+    if (stream.str().find(message) == std::string::npos) {
+        throw std::runtime_error("ERROR!!: '" + message + "' not found in '" + stream.str() + "'");
+    }
+}
+
 void assertMessage(std::stringstream & stream, const std::string & message, const std::string & timestampSeparator)
 {
-    assert(stream.str().find(message) != std::string::npos);
-    assert(stream.str().find(timestampSeparator) != std::string::npos);
+    assertString(stream, message);
+    assertString(stream, timestampSeparator);
+}
+
+void assertNotString(std::stringstream & stream, const std::string & message)
+{
+    if (stream.str().find(message) != std::string::npos) {
+        throw std::runtime_error("ERROR!!: '" + message + "' was found in '" + stream.str() + "'");
+    }
 }
 
 void assertNotMessage(std::stringstream & stream, const std::string & message, const std::string & timestampSeparator)
 {
-    assert(stream.str().find(message) == std::string::npos);
-    assert(stream.str().find(timestampSeparator) == std::string::npos);
+    assertNotString(stream, message);
+    assertNotString(stream, timestampSeparator);
 }
 
 void testFatal_noneLoggingLevel_shouldNotPrintMessage(const std::string & message, const std::string & timestampSeparator)
@@ -156,6 +172,66 @@ void testTrace_traceLoggingLevel_shouldPrintMessage(const std::string & message,
     assertMessage(ss, message, timestampSeparator);
 }
 
+void testTag_fatalLevel_shouldPrintTag(const std::string & message, const std::string & timestampSeparator)
+{
+    std::stringstream ss;
+    L::setStream(L::Level::Fatal, ss);
+    L::setLoggingLevel(L::Level::Fatal);
+    const std::string tag = "TAG";
+    L(tag).fatal() << message;
+    assertMessage(ss, tag + ": " + message, timestampSeparator);
+}
+
+void testTag_errorLevel_shouldPrintTag(const std::string & message, const std::string & timestampSeparator)
+{
+    std::stringstream ss;
+    L::setStream(L::Level::Error, ss);
+    L::setLoggingLevel(L::Level::Error);
+    const std::string tag = "TAG";
+    L(tag).fatal() << message;
+    assertMessage(ss, tag + ": " + message, timestampSeparator);
+}
+
+void testTag_warningLevel_shouldPrintTag(const std::string & message, const std::string & timestampSeparator)
+{
+    std::stringstream ss;
+    L::setStream(L::Level::Warning, ss);
+    L::setLoggingLevel(L::Level::Warning);
+    const std::string tag = "TAG";
+    L(tag).fatal() << message;
+    assertMessage(ss, tag + ": " + message, timestampSeparator);
+}
+
+void testTag_infoLevel_shouldPrintTag(const std::string & message, const std::string & timestampSeparator)
+{
+    std::stringstream ss;
+    L::setStream(L::Level::Info, ss);
+    L::setLoggingLevel(L::Level::Info);
+    const std::string tag = "TAG";
+    L(tag).fatal() << message;
+    assertMessage(ss, tag + ": " + message, timestampSeparator);
+}
+
+void testTag_debugLevel_shouldPrintTag(const std::string & message, const std::string & timestampSeparator)
+{
+    std::stringstream ss;
+    L::setStream(L::Level::Debug, ss);
+    L::setLoggingLevel(L::Level::Debug);
+    const std::string tag = "TAG";
+    L(tag).fatal() << message;
+    assertMessage(ss, tag + ": " + message, timestampSeparator);
+}
+
+void testTag_traceLevel_shouldPrintTag(const std::string & message, const std::string & timestampSeparator)
+{
+    std::stringstream ss;
+    L::setStream(L::Level::Trace, ss);
+    L::setLoggingLevel(L::Level::Trace);
+    const std::string tag = "TAG";
+    L(tag).fatal() << message;
+    assertMessage(ss, tag + ": " + message, timestampSeparator);
+}
+
 void initializeLogger(const std::string & timestampSeparator)
 {
     L::enableEchoMode(true);
@@ -168,9 +244,10 @@ void testTimestampMode_none_shouldNotPrintTimestamp(const std::string & message)
     L::setTimestampMode(L::TimestampMode::None);
     std::stringstream ss;
     L::setStream(L::Level::Info, ss);
+    L::setLoggingLevel(L::Level::Info);
     L().info() << message;
-    assert(ss.str().find(message) != std::string::npos);
-    assert(ss.str().find(" ## ") == std::string::npos);
+    assertString(ss, message);
+    assertNotString(ss, "##");
 }
 
 void testTimestampMode_dateTime_shouldPrintDateTimeTimestamp(const std::string & message)
@@ -283,6 +360,18 @@ void runTests()
     testTrace_higherLoggingLevel_shouldNotPrintMessage(message, timestampSeparator);
 
     testTrace_traceLoggingLevel_shouldPrintMessage(message, timestampSeparator);
+
+    testTag_fatalLevel_shouldPrintTag(message, timestampSeparator);
+
+    testTag_errorLevel_shouldPrintTag(message, timestampSeparator);
+
+    testTag_warningLevel_shouldPrintTag(message, timestampSeparator);
+
+    testTag_infoLevel_shouldPrintTag(message, timestampSeparator);
+
+    testTag_debugLevel_shouldPrintTag(message, timestampSeparator);
+
+    testTag_traceLevel_shouldPrintTag(message, timestampSeparator);
 
     testTimestampMode_none_shouldNotPrintTimestamp(message);
 
