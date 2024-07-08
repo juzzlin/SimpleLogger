@@ -135,8 +135,8 @@ public:
     std::ostringstream & fatal();
 
 private:
-    SimpleLogger(const SimpleLogger & r) = delete;
-    SimpleLogger & operator=(const SimpleLogger & r) = delete;
+    SimpleLogger(const SimpleLogger &) = delete;
+    SimpleLogger & operator=(const SimpleLogger &) = delete;
 
     class Impl;
     std::unique_ptr<Impl> m_impl;
