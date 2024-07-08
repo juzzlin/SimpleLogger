@@ -416,7 +416,7 @@ std::ostringstream & SimpleLogger::fatal()
 
 std::string SimpleLogger::version()
 {
-    return "1.4.0";
+    return "2.0.0";
 }
 
 SimpleLogger::~SimpleLogger() = default;
