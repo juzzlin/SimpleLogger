@@ -197,3 +197,5 @@ MIT
 
 * https://github.com/juzzlin/Heimer
 
+* https://github.com/juzzlin/Noteahead
+
