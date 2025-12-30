@@ -206,7 +206,7 @@ L::flush();
 
 ## Collapse repeated messages
 
-Consecutive identical messages within a batch can be collapsed.
+Identical messages within a batch can be collapsed, regardless of their order.
 
 ```cpp
 using juzzlin::L;

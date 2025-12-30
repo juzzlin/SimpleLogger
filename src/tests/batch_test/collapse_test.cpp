@@ -60,12 +60,13 @@ int main() {
     
     L::flush();
     
-    // Should see A (x2), B, A (x2)
-    // We can't easily verify order with simple fileContains but we can check existence
-    // Ideally we'd read the file line by line but this is a quick check.
-    
-    if (!fileContains(logFile, "A (x2)")) {
-         std::cerr << "File should contain 'A (x2)'!" << std::endl;
+    // Should see A (x4), B
+    if (!fileContains(logFile, "A (x4)")) {
+         std::cerr << "File should contain 'A (x4)'!" << std::endl;
+         return 1;
+    }
+    if (fileContains(logFile, "A (x2)")) {
+         std::cerr << "File should NOT contain 'A (x2)'!" << std::endl;
          return 1;
     }
 

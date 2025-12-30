@@ -33,6 +33,7 @@
 #include <map>
 #include <mutex>
 #include <stdexcept>
+#include <unordered_map>
 #include <vector>
 
 namespace juzzlin {
@@ -121,6 +122,7 @@ private:
 
     struct LogEntry
     {
+        std::string timestamp;
         std::string message;
         SimpleLogger::Level level;
     };
@@ -133,6 +135,8 @@ private:
     std::lock_guard<std::recursive_mutex> m_lock;
 
     std::string m_tag;
+
+    std::string m_logEntryTimestamp;
 
     std::ostringstream m_message;
 };
@@ -265,27 +269,31 @@ void SimpleLogger::Impl::flush()
     };
 
     if (m_collapseRepeated) {
-        auto it = m_batchQueue.begin();
-        while (it != m_batchQueue.end()) {
-            const auto & currentMsg = it->message;
-            SimpleLogger::Level currentLevel = it->level;
-            int count = 1;
-            auto next = it + 1;
-            while (next != m_batchQueue.end() && next->message == currentMsg) {
-                count++;
-                next++;
-            }
+        std::vector<LogEntry> uniqueEntries;
+        std::vector<size_t> counts;
+        std::unordered_map<std::string, size_t> indexMap;
 
-            std::string finalMsg = currentMsg;
-            if (count > 1) {
-                finalMsg += " (x" + std::to_string(count) + ")";
+        for (const auto & entry : m_batchQueue) {
+            auto it = indexMap.find(entry.message);
+            if (it != indexMap.end()) {
+                counts[it->second]++;
+            } else {
+                indexMap[entry.message] = uniqueEntries.size();
+                uniqueEntries.push_back(entry);
+                counts.push_back(1);
             }
-            outputMessage(finalMsg, currentLevel);
-            it = next;
+        }
+
+        for (size_t i = 0; i < uniqueEntries.size(); ++i) {
+            std::string finalMsg = uniqueEntries[i].timestamp + uniqueEntries[i].message;
+            if (counts[i] > 1) {
+                finalMsg += " (x" + std::to_string(counts[i]) + ")";
+            }
+            outputMessage(finalMsg, uniqueEntries[i].level);
         }
     } else {
         for (const auto & entry : m_batchQueue) {
-            outputMessage(entry.message, entry.level);
+            outputMessage(entry.timestamp + entry.message, entry.level);
         }
     }
 
@@ -373,7 +381,7 @@ void SimpleLogger::Impl::prefixWithTimestamp()
     }
 
     if (!timestamp.empty()) {
-        m_message << timestamp << m_timestampSeparator;
+        m_logEntryTimestamp = timestamp + m_timestampSeparator;
     }
 }
 
@@ -385,7 +393,7 @@ bool SimpleLogger::Impl::shouldFlush() const
 void SimpleLogger::Impl::flushFileIfOpen()
 {
     if (m_fileStream.is_open()) {
-        m_fileStream << m_message.str() << std::endl;
+        m_fileStream << m_logEntryTimestamp << m_message.str() << std::endl;
         m_fileStream.flush();
     }
 }
@@ -394,7 +402,7 @@ void SimpleLogger::Impl::flushEchoIfEnabled()
 {
     if (m_echoMode) {
         if (auto && stream = m_streams[m_activeLevel]; stream) {
-            *stream << m_message.str() << std::endl;
+            *stream << m_logEntryTimestamp << m_message.str() << std::endl;
             stream->flush();
         }
     }
@@ -404,7 +412,7 @@ void SimpleLogger::Impl::flushCurrentMessage()
 {
     if (shouldFlush()) {
         if (m_batchInterval.count() > 0) {
-            m_batchQueue.push_back({ m_message.str(), m_activeLevel });
+            m_batchQueue.push_back({ m_logEntryTimestamp, m_message.str(), m_activeLevel });
 
             const auto now = std::chrono::steady_clock::now();
             if (now - m_lastFlushTime >= m_batchInterval) {
