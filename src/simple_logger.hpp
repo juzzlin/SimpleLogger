@@ -117,6 +117,10 @@ public:
     //! Flush the batch queue.
     static void flush();
 
+    //! Enable/disable collapsing of repeated messages.
+    //! \param collapse If true, repeated messages in a batch will be collapsed.
+    static void setCollapseRepeatedMessages(bool collapse);
+
     //! Set specific stream.
     //! \param level The level.
     //! \param stream The output stream.

@@ -72,6 +72,8 @@ public:
 
     static void setBatchInterval(std::chrono::milliseconds interval);
 
+    static void setCollapseRepeatedMessages(bool collapse);
+
     static void flush();
 
     static void setStream(Level level, std::ostream & stream);
@@ -96,6 +98,8 @@ private:
     bool shouldFlush() const;
 
     static bool m_echoMode;
+
+    static bool m_collapseRepeated;
 
     static SimpleLogger::Level m_level;
 
@@ -134,6 +138,8 @@ private:
 };
 
 bool SimpleLogger::Impl::m_echoMode = true;
+
+bool SimpleLogger::Impl::m_collapseRepeated = false;
 
 SimpleLogger::Level SimpleLogger::Impl::m_level = SimpleLogger::Level::Info;
 
@@ -235,6 +241,11 @@ void SimpleLogger::Impl::setBatchInterval(std::chrono::milliseconds interval)
     }
 }
 
+void SimpleLogger::Impl::setCollapseRepeatedMessages(bool collapse)
+{
+    m_collapseRepeated = collapse;
+}
+
 void SimpleLogger::Impl::flush()
 {
     std::lock_guard<std::recursive_mutex> lock(m_mutex);
@@ -242,20 +253,52 @@ void SimpleLogger::Impl::flush()
         return;
     }
 
-    if (m_fileStream.is_open()) {
-        for (const auto & entry : m_batchQueue) {
-            m_fileStream << entry.message << std::endl;
+    auto outputMessage = [&](const std::string & msg, SimpleLogger::Level level) {
+        if (m_fileStream.is_open()) {
+            m_fileStream << msg << std::endl;
         }
-        m_fileStream.flush();
-    }
-
-    if (m_echoMode) {
-        for (const auto & entry : m_batchQueue) {
-            if (auto && stream = m_streams[entry.level]; stream) {
-                *stream << entry.message << std::endl;
+        if (m_echoMode) {
+            if (auto && stream = m_streams[level]; stream) {
+                *stream << msg << std::endl;
             }
         }
+    };
+
+    if (m_collapseRepeated) {
+        auto it = m_batchQueue.begin();
+        while (it != m_batchQueue.end()) {
+            const auto & currentMsg = it->message;
+            SimpleLogger::Level currentLevel = it->level;
+            int count = 1;
+            auto next = it + 1;
+            while (next != m_batchQueue.end() && next->message == currentMsg) {
+                count++;
+                next++;
+            }
+
+            std::string finalMsg = currentMsg;
+            if (count > 1) {
+                finalMsg += " (x" + std::to_string(count) + ")";
+            }
+            outputMessage(finalMsg, currentLevel);
+            it = next;
+        }
+    } else {
+        for (const auto & entry : m_batchQueue) {
+            outputMessage(entry.message, entry.level);
+        }
     }
+
+    if (m_fileStream.is_open()) {
+        m_fileStream.flush();
+    }
+    if (m_echoMode) {
+        // Flush all streams that might have been used
+        for (auto const & [level, stream] : m_streams) {
+            if (stream) stream->flush();
+        }
+    }
+
     m_batchQueue.clear();
     m_lastFlushTime = std::chrono::steady_clock::now();
 }
@@ -468,6 +511,11 @@ void SimpleLogger::setTimestampSeparator(std::string timestampSeparator)
 void SimpleLogger::setBatchInterval(std::chrono::milliseconds interval)
 {
     Impl::setBatchInterval(interval);
+}
+
+void SimpleLogger::setCollapseRepeatedMessages(bool collapse)
+{
+    Impl::setCollapseRepeatedMessages(collapse);
 }
 
 void SimpleLogger::flush()

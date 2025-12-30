@@ -3,12 +3,13 @@ x.y.z
 
 New features:
 
-* Add option to batch log messages
+* Add option to batch/cache log messages for certain times
   - SimpleLogger::setBatchInterval()
   - SimpleLogger::flush()
+* Add option to collapse repeated messages within a batch
+  - SimpleLogger::setCollapseRepeatedMessages()
 
 2.0.0
-=====
 
 New features:
 
