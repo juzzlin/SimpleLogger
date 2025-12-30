@@ -42,42 +42,28 @@ class SimpleLogger::Impl
 {
 public:
     Impl();
-
     Impl(const std::string & tag);
-
     ~Impl();
 
     std::ostringstream & traceStream();
-
     std::ostringstream & debugStream();
-
     std::ostringstream & infoStream();
-
     std::ostringstream & warningStream();
-
     std::ostringstream & errorStream();
-
     std::ostringstream & fatalStream();
 
     static void enableEchoMode(bool enable);
 
     static void setLevelSymbol(SimpleLogger::Level level, std::string symbol);
-
     static void setLoggingLevel(SimpleLogger::Level level);
-
     static void setCustomTimestampFormat(std::string format);
-
     static void setTimestampMode(SimpleLogger::TimestampMode timestampMode);
-
     static void setTimestampSeparator(std::string separator);
-
     static void setBatchInterval(std::chrono::milliseconds interval);
-
     static void setCollapseRepeatedMessages(bool collapse);
+    static void setStream(Level level, std::ostream & stream);
 
     static void flush();
-
-    static void setStream(Level level, std::ostream & stream);
 
     static void initialize(std::string filename, bool append);
 
@@ -89,25 +75,20 @@ private:
     std::string currentDateTime(std::chrono::time_point<std::chrono::system_clock> now, const std::string & dateTimeFormat) const;
 
     void flushFileIfOpen();
-
     void flushEchoIfEnabled();
 
     void prefixWithLevelAndTag(SimpleLogger::Level level);
-
     void prefixWithTimestamp();
 
     bool shouldFlush() const;
 
     static bool m_echoMode;
-
     static bool m_collapseRepeated;
 
     static SimpleLogger::Level m_level;
-
     static SimpleLogger::TimestampMode m_timestampMode;
 
     static std::string m_timestampSeparator;
-
     static std::string m_customTimestampFormat;
 
     static std::ofstream m_fileStream;
@@ -135,22 +116,18 @@ private:
     std::lock_guard<std::recursive_mutex> m_lock;
 
     std::string m_tag;
-
     std::string m_logEntryTimestamp;
 
     std::ostringstream m_message;
 };
 
 bool SimpleLogger::Impl::m_echoMode = true;
-
 bool SimpleLogger::Impl::m_collapseRepeated = false;
 
 SimpleLogger::Level SimpleLogger::Impl::m_level = SimpleLogger::Level::Info;
-
 SimpleLogger::TimestampMode SimpleLogger::Impl::m_timestampMode = SimpleLogger::TimestampMode::DateTime;
 
 std::string SimpleLogger::Impl::m_timestampSeparator = ": ";
-
 std::string SimpleLogger::Impl::m_customTimestampFormat;
 
 std::ofstream SimpleLogger::Impl::m_fileStream;
@@ -184,13 +161,13 @@ std::chrono::milliseconds SimpleLogger::Impl::m_batchInterval = std::chrono::mil
 std::chrono::steady_clock::time_point SimpleLogger::Impl::m_lastFlushTime = std::chrono::steady_clock::now();
 
 SimpleLogger::Impl::Impl()
-  : m_lock(m_mutex)
+  : m_lock { m_mutex }
 {
 }
 
 SimpleLogger::Impl::Impl(const std::string & tag)
-  : m_lock(m_mutex)
-  , m_tag(tag)
+  : m_lock { m_mutex }
+  , m_tag { tag }
 {
 }
 
@@ -240,7 +217,7 @@ void SimpleLogger::Impl::setTimestampSeparator(std::string separator)
 void SimpleLogger::Impl::setBatchInterval(std::chrono::milliseconds interval)
 {
     m_batchInterval = interval;
-    if (m_batchInterval.count() == 0) {
+    if (!m_batchInterval.count()) {
         flush();
     }
 }
@@ -252,12 +229,13 @@ void SimpleLogger::Impl::setCollapseRepeatedMessages(bool collapse)
 
 void SimpleLogger::Impl::flush()
 {
-    std::lock_guard<std::recursive_mutex> lock(m_mutex);
+    std::lock_guard<std::recursive_mutex> lock { m_mutex };
+
     if (m_batchQueue.empty()) {
         return;
     }
 
-    auto outputMessage = [&](const std::string & msg, SimpleLogger::Level level) {
+    const auto outputMessage = [&](const std::string & msg, SimpleLogger::Level level) {
         if (m_fileStream.is_open()) {
             m_fileStream << msg << std::endl;
         }
@@ -274,7 +252,7 @@ void SimpleLogger::Impl::flush()
         std::unordered_map<std::string, size_t> indexMap;
 
         for (const auto & entry : m_batchQueue) {
-            auto it = indexMap.find(entry.message);
+            auto && it = indexMap.find(entry.message);
             if (it != indexMap.end()) {
                 counts[it->second]++;
             } else {
