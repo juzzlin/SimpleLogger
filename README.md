@@ -11,6 +11,8 @@ Looking for a simple logger for your C++ project? `SimpleLogger` might be for yo
 * Logging levels: `Trace`, `Debug`, `Info`, `Warning`, `Error`, `Fatal`
 * Log to file and/or console
 * Thread-safe
+* Batching and caching of log messages
+* Optional collapsing of repeated messages
 * Uses streams (<< operator)
 * Very easy to use
 
@@ -182,6 +184,47 @@ using juzzlin::L;
 std::stringstream ssI;
 L::setStream(L::Level::Info, ssI);
 ```
+
+## Batching and caching
+
+Log messages can be batched and flushed periodically to reduce I/O.
+
+```cpp
+using juzzlin::L;
+using namespace std::chrono_literals;
+
+// Flush every 2 seconds
+L::setBatchInterval(2000ms);
+
+L().info() << "This message is cached";
+std::this_thread::sleep_for(2500ms);
+L().info() << "Now both are flushed";
+
+// Manual flush
+L::flush();
+```
+
+## Collapse repeated messages
+
+Consecutive identical messages within a batch can be collapsed.
+
+```cpp
+using juzzlin::L;
+using namespace std::chrono_literals;
+
+L::setBatchInterval(1000ms);
+L::setCollapseRepeatedMessages(true);
+
+L().info() << "Problematic message";
+L().info() << "Problematic message";
+L().info() << "Problematic message";
+
+L::flush();
+```
+
+Outputs something like this:
+
+`Sat Oct 13 22:38:42 2018 I: Problematic message (x3)`
 
 # Requirements
 
