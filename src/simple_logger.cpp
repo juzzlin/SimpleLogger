@@ -33,6 +33,7 @@
 #include <map>
 #include <mutex>
 #include <stdexcept>
+#include <vector>
 
 namespace juzzlin {
 
@@ -69,11 +70,15 @@ public:
 
     static void setTimestampSeparator(std::string separator);
 
+    static void setBatchInterval(std::chrono::milliseconds interval);
+
+    static void flush();
+
     static void setStream(Level level, std::ostream & stream);
 
     static void initialize(std::string filename, bool append);
 
-    void flush();
+    void flushCurrentMessage();
 
     std::ostringstream & prepareStreamForLoggingLevel(SimpleLogger::Level level);
 
@@ -109,6 +114,15 @@ private:
     static StreamMap m_streams;
 
     static std::recursive_mutex m_mutex;
+
+    struct LogEntry
+    {
+        std::string message;
+        SimpleLogger::Level level;
+    };
+    static std::vector<LogEntry> m_batchQueue;
+    static std::chrono::milliseconds m_batchInterval;
+    static std::chrono::steady_clock::time_point m_lastFlushTime;
 
     SimpleLogger::Level m_activeLevel = SimpleLogger::Level::Info;
 
@@ -153,6 +167,12 @@ SimpleLogger::Impl::StreamMap SimpleLogger::Impl::m_streams = {
 
 std::recursive_mutex SimpleLogger::Impl::m_mutex;
 
+std::vector<SimpleLogger::Impl::LogEntry> SimpleLogger::Impl::m_batchQueue;
+
+std::chrono::milliseconds SimpleLogger::Impl::m_batchInterval = std::chrono::milliseconds(0);
+
+std::chrono::steady_clock::time_point SimpleLogger::Impl::m_lastFlushTime = std::chrono::steady_clock::now();
+
 SimpleLogger::Impl::Impl()
   : m_lock(m_mutex)
 {
@@ -166,7 +186,7 @@ SimpleLogger::Impl::Impl(const std::string & tag)
 
 SimpleLogger::Impl::~Impl()
 {
-    flush();
+    flushCurrentMessage();
 }
 
 void SimpleLogger::Impl::enableEchoMode(bool enable)
@@ -205,6 +225,39 @@ void SimpleLogger::Impl::setTimestampMode(TimestampMode timestampMode)
 void SimpleLogger::Impl::setTimestampSeparator(std::string separator)
 {
     m_timestampSeparator = separator;
+}
+
+void SimpleLogger::Impl::setBatchInterval(std::chrono::milliseconds interval)
+{
+    m_batchInterval = interval;
+    if (m_batchInterval.count() == 0) {
+        flush();
+    }
+}
+
+void SimpleLogger::Impl::flush()
+{
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
+    if (m_batchQueue.empty()) {
+        return;
+    }
+
+    if (m_fileStream.is_open()) {
+        for (const auto & entry : m_batchQueue) {
+            m_fileStream << entry.message << std::endl;
+        }
+        m_fileStream.flush();
+    }
+
+    if (m_echoMode) {
+        for (const auto & entry : m_batchQueue) {
+            if (auto && stream = m_streams[entry.level]; stream) {
+                *stream << entry.message << std::endl;
+            }
+        }
+    }
+    m_batchQueue.clear();
+    m_lastFlushTime = std::chrono::steady_clock::now();
 }
 
 std::string SimpleLogger::Impl::currentDateTime(std::chrono::time_point<std::chrono::system_clock> now, const std::string & dateTimeFormat) const
@@ -304,11 +357,20 @@ void SimpleLogger::Impl::flushEchoIfEnabled()
     }
 }
 
-void SimpleLogger::Impl::flush()
+void SimpleLogger::Impl::flushCurrentMessage()
 {
     if (shouldFlush()) {
-        flushFileIfOpen();
-        flushEchoIfEnabled();
+        if (m_batchInterval.count() > 0) {
+            m_batchQueue.push_back({ m_message.str(), m_activeLevel });
+
+            const auto now = std::chrono::steady_clock::now();
+            if (now - m_lastFlushTime >= m_batchInterval) {
+                flush();
+            }
+        } else {
+            flushFileIfOpen();
+            flushEchoIfEnabled();
+        }
     }
 }
 
@@ -401,6 +463,16 @@ void SimpleLogger::setCustomTimestampFormat(std::string customTimestampFormat)
 void SimpleLogger::setTimestampSeparator(std::string timestampSeparator)
 {
     Impl::setTimestampSeparator(timestampSeparator);
+}
+
+void SimpleLogger::setBatchInterval(std::chrono::milliseconds interval)
+{
+    Impl::setBatchInterval(interval);
+}
+
+void SimpleLogger::flush()
+{
+    Impl::flush();
 }
 
 void SimpleLogger::setStream(Level level, std::ostream & stream)

@@ -1,3 +1,12 @@
+x.y.z
+=====
+
+New features:
+
+* Add option to batch log messages
+  - SimpleLogger::setBatchInterval()
+  - SimpleLogger::flush()
+
 2.0.0
 =====
 
